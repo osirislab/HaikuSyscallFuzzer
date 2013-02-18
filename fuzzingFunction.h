@@ -2,7 +2,8 @@
 #define fuzzer
 #include <stdint.h>
 
-void fuzz(unsigned int);
-
+void fuzzint99(unsigned int);
+void fuzzsyscall(unsigned int);
+void fuzzcallgate(unsigned int);
 
 #endif
