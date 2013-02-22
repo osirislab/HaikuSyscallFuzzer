@@ -1,0 +1,2 @@
+This is a fuzzer for the Haiku operating system.
+This fuzzer attempts to fuzz the haiku systemcalls for vulnerabilities.
