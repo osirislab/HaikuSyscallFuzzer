@@ -4,7 +4,7 @@ assemble:
 compile:
 	gcc fuzz.c -c -o fuzz.o
 link:
-	gcc *.o -o fuzzer
+	gcc *.o -o fuzzer -m32
 
 clean:
 	rm fuzzingFunction.o
