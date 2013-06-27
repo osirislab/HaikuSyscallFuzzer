@@ -35,6 +35,8 @@ fuzzint99:
 
 
 fuzzcallgate:
+	push ebp
+	mov ebp,esp
 	xor eax,eax
 .top:
 	push esp
@@ -45,13 +47,11 @@ fuzzcallgate:
 
 .fuzzer:
 	mov esp, ecx
-	mov eax, [esp-4]
+	mov eax, [ebp-8]
 .fuzz
 	cmp eax,0x100
 	jz fuzzcallgate.end
 	call dword [0xffff000c]
-	;int 99
-	;sysenter
 	inc eax
 	jmp fuzzcallgate.fuzz
 

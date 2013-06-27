@@ -14,6 +14,7 @@ int main(int argc,char** argv){
 	if(argc<2){
 		   printf("usage %s <fuzztype> <syscallStart#>\n"
 		"fuzztype:\n1.) int99\n2.) sysenter\n3.)callgate\n",argv[0]);
+		   exit(1);
 	}
 
 
