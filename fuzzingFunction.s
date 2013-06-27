@@ -5,6 +5,8 @@ global fuzzcallgate
 section .data
 extern printf
 
+%define COMMPAGE_GATE 0xffff000c
+
 fuzzint99:
 	xor eax,eax
 .top:
@@ -42,13 +44,12 @@ fuzzcallgate:
 	jmp fuzzcallgate.top
 
 .fuzzer:
-	mov ecx, 16
-	mov edx, esp
+	mov esp, ecx
 	mov eax, [esp-4]
 .fuzz
 	cmp eax,0x100
 	jz fuzzcallgate.end
-	jmp 0xffff000c
+	call dword [0xffff000c]
 	;int 99
 	;sysenter
 	inc eax
