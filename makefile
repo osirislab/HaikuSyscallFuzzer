@@ -2,10 +2,10 @@ all:assemble compile link
 assemble:
 	yasm -f elf fuzzingFunction.s
 compile:
-	gcc fuzz.c -c -o fuzz.o -m32
+	gcc fuzz.c -c -o fuzz.o 
 
 link:
-	gcc *.o -o fuzzer -m32
+	gcc *.o -o fuzzer
 
 clean:
 	rm fuzzingFunction.o
