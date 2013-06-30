@@ -1,87 +1,58 @@
+	;; Evan Jensen 022213
 BITS 32
-global fuzzint99
-global fuzzsysenter
-global fuzzcallgate
+global fuzz
 section .data
 extern printf
-
-%define COMMPAGE_GATE 0xffff000c
-
-fuzzint99:
-	xor eax,eax
-.top:
-	push esp
-	inc eax
-	cmp eax, 16
-	jz fuzzint99.fuzzer
-	jmp fuzzint99.top
-
-.fuzzer:
-	mov ecx, 16
-	mov edx, esp
-	mov eax, [esp-4]
-.fuzz
-	cmp eax,0x100
-	jz fuzzint99.end
-	;jmp 0xffff000c
-	int 99
-	;sysenter
-	inc eax
-	jmp fuzzint99.fuzz
-
-.end
-	add esp, 16*4
-	ret
-
-
-fuzzcallgate:
+	;; void fuzz(unit32_t startCall,unit32_t calltype)
+fuzz:
 	push ebp
 	mov ebp,esp
 	xor eax,eax
-.top:
-	push esp
-	inc eax
+	mov ecx, [ebp-0xC]	;arg2
+	cmp ecx,3		;arg testing there are only 3 fuzzing methods
+	jbe fuzz.writeStack		;if it's good continue with fuzzing
+	mov eax,-1
+	leave
+	ret			;get here if called with second arg >=4
+
+.writeStack:			;Here we write 16 args to the stack
+	push esp		;In the future I will fuzz these args
+	inc eax			;Here we just see what happens!
 	cmp eax, 16
-	jz fuzzcallgate.fuzzer
-	jmp fuzzcallgate.top
+	jnl fuzz.fuzzer
+	jmp fuzz.writeStack 
 
 .fuzzer:
-	mov esp, ecx
-	mov eax, [ebp-8]
-.fuzz
-	cmp eax,0x100
-	jz fuzzcallgate.end
-	call dword [0xffff000c]
-	inc eax
-	jmp fuzzcallgate.fuzz
 
-.end
+	mov eax, [ebp-0x8]	;arg1
+
+.fuzz:
+	mov eax, [ebp-0x8]	;arg1
+	cmp eax,0x100		;Test syscall number
+	jae fuzz.end		;exit if too high 
+	jmp [fuzzTable+4*ecx-4]	;fuzz based on the fuzzing method
+.finishCall:
+	inc dword [ebp-0x8]			;Increment syscall#
+	jmp fuzz.fuzz		;Try again
+
+	
+.end:				;fuzzing done, no crashes :(
 	add esp, 16*4
+	leave
 	ret
 
 
-fuzzsysenter:
-	xor eax,eax
-.top:
-	push esp
-	inc eax
-	cmp eax, 16
-	jz fuzzsysenter.fuzzer
-	jmp fuzzsysenter.top
-
-.fuzzer:
-	mov ecx, 16
-	mov edx, esp
-	mov eax, [esp-4]
-.fuzz
-	cmp eax,0x100
-	jz fuzzsysenter.end
-	;jmp 0xffff000c
-	;int 99
+	;; set up fuzzing stuff
+	;; I can't think of a better way to do this
+	
+sysent:
 	sysenter
-	inc eax
-	jmp fuzzsysenter.fuzz
+	jmp fuzz.finishCall
+callgate:
+	call [0xffff000c] 	;pointer to kernelgate
+	jmp fuzz.finishCall
+int99:
+	int 99
+	jmp fuzz.finishCall
 
-.end
-	add esp, 16*4
-	ret
+fuzzTable:	dd sysent,callgate,int99 ;important these match the c fuzzer

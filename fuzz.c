@@ -19,25 +19,13 @@ int main(int argc,char** argv){
 
 
 	fuzzType = strtoul(argv[1], 0, 0);
+
 	startingCall = strtoul(argv[2], 0, 0);
 	
-	switch(fuzzType){
-	 case 0:
-		break;
-	 case INT99:
-		fuzzint99(startingCall);
-		break;
-	 case SYSENTER:
-		fuzzsysenter(startingCall);
-		break;
-	 case CALLGATE:
-		fuzzcallgate(startingCall);
-		break;
-	 /*case default:
-		printf("improper usage\n");
-		exit(1);
-*/
-	}
+	if(fuzz(fuzzType,startingCall)==-1)
+	  puts("You messed something up");
+	
+	
 	printf("Fuzzing Over\n");
 	return 0;
 }
