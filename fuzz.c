@@ -2,10 +2,6 @@
 #include <stdlib.h>
 #include "fuzzingFunction.h"
 
-#define INT99 1
-#define SYSENTER 2
-#define CALLGATE 3
-
 int main(int argc,char** argv){
 
 	unsigned int fuzzType;
