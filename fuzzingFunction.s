@@ -8,7 +8,7 @@ fuzz:
 	push ebp
 	mov ebp,esp
 	xor eax,eax
-	mov ecx, [ebp+0x8]	;arg1
+        mov ecx, [ebp+0x8] ;arg1
 	cmp ecx,3		;arg testing there are only 3 fuzzing methods
 	jbe fuzz.writeStack		;if it's good continue with fuzzing
 	mov eax,-1
@@ -29,9 +29,10 @@ fuzz:
 	mov eax, [ebp+0xc]	;arg2
 	cmp eax,0x100		;Test syscall number
 	jae fuzz.end		;exit if too high
+        mov ecx, [ebp+0x8] ;arg1
 	jmp [fuzzTable+4*ecx-4]	;fuzz based on the fuzzing method
 .finishCall:
-	inc dword [ebp-0x8]			;Increment syscall#
+	inc dword [ebp+0xc]			;Increment syscall#
 	jmp fuzz.fuzz		;Try again
 
 
